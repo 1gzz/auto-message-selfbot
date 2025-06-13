@@ -1,0 +1,2 @@
+discord.py-self>=1.9.7
+colorama>=0.4.6
