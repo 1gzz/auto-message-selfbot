@@ -118,6 +118,8 @@ auto_message_scheduler = AutoMessageScheduler(Igz)
 
 @Igz.event
 async def on_ready():
+    # Clear the console on ready
+    os.system('cls' if os.name == 'nt' else 'clear')
     print(f"\033[92m[+] Logged in as: {Igz.user.name} (ID: {Igz.user.id})")
     await auto_message_scheduler.start()
     print("\033[92m[+] Auto-message scheduler started.")
@@ -153,6 +155,10 @@ async def amlist(ctx):
     except Exception as e:
         await ctx.send(f"Failed to list Auto Messages: {e}")
 
+@amlist.error
+async def amlist_error(ctx, error):
+    await ctx.send("Usage: `{0}amlist`".format(prefix))
+
 @Igz.command()
 async def startam(ctx, channel_id: int, time_in_min: int, *, content: str):
     try:
@@ -170,6 +176,15 @@ async def startam(ctx, channel_id: int, time_in_min: int, *, content: str):
     except Exception as e:
         await ctx.send(f"[ ! ] Failed to start auto message: {e}")
 
+@startam.error
+async def startam_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send(f"Usage: `{prefix}startam <channel_id> <time_in_min> <content>`\nExample: `{prefix}startam 123456789012345678 10 Hello world!`")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send(f"[ ! ] Invalid argument type.\nUsage: `{prefix}startam <channel_id> <time_in_min> <content>`\nExample: `{prefix}startam 123456789012345678 10 Hello world!`")
+    else:
+        await ctx.send(f"[ ! ] Error: {error}")
+
 @Igz.command()
 async def stopam(ctx, channel_id: int):
     try:
@@ -183,7 +198,16 @@ async def stopam(ctx, channel_id: int):
     except Exception as e:
         await ctx.send(f"[ ! ] Failed to stop auto message: {e}")
         print(f"\033[91m[!] STOPAM ERROR: {e}")
-    
+
+@stopam.error
+async def stopam_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send(f"Usage: `{prefix}stopam <channel_id>`\nExample: `{prefix}stopam 123456789012345678`")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send(f"[ ! ] Invalid argument type.\nUsage: `{prefix}stopam <channel_id>`\nExample: `{prefix}stopam 123456789012345678`")
+    else:
+        await ctx.send(f"[ ! ] Error: {error}")
+
 @Igz.event
 async def on_guild_channel_create(channel):
     if isinstance(channel, discord.TextChannel):
